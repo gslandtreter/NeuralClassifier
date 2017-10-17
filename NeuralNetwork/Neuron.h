@@ -4,10 +4,10 @@
 #pragma once
 
 #include <list>
-#include "NeuralNetwork.h"
+#include "Layer.h"
+class Layer;
 
 typedef double (* vFunctionCall)(double);
-
 class Neuron {
 
 public:
@@ -15,17 +15,29 @@ public:
     double activate(double x);
     double derivativeActivation(double x);
 
-    Synapse* link(Neuron* linkTo);
-    void addInputNeuron(Synapse* who);
-    void addOutputNeuron(Synapse* who);
+    void setMyLayer(Layer *layer);
 
 
 protected:
+
+    static double theta;
+    static double alpha;
+
+    static double initRandomWeight();
+    double outputVal;
+public:
+    double getOutputVal() const;
+
+    void setOutputVal(double outputVal);
+
+protected:
+
     vFunctionCall activationFunction;
     vFunctionCall derivativeActivationFunction;
 
-    std::list<Synapse*> inputNeurons;
-    std::list<Synapse*> outputNeurons;
+    Layer* myLayer;
 
 };
+
+
 

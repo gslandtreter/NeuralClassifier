@@ -4,6 +4,19 @@
 
 #pragma once
 
-class Synapse;
-class Neuron;
 
+#include "Neuron.h"
+#include "Layer.h"
+
+#include <vector>
+
+class NeuralNetwork {
+
+public:
+    NeuralNetwork(const std::vector<int> &topology);
+    ~NeuralNetwork();
+
+protected:
+
+    std::vector<Layer*> layers;
+};
