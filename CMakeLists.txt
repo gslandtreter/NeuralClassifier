@@ -3,9 +3,10 @@ project(NeuralClassifier)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(SOURCE_FILES main.cpp)
+FILE(GLOB NeuralNetwork NeuralNetwork/*.cpp)
+set(SOURCE_FILES main.cpp ${NeuralNetwork})
 add_executable(NeuralClassifier ${SOURCE_FILES})
 
-find_package(PythonLibs REQUIRED)
+find_package(PythonLibs 2.7)
 include_directories(${PYTHON_INCLUDE_DIRS})
 target_link_libraries(NeuralClassifier ${PYTHON_LIBRARIES})
