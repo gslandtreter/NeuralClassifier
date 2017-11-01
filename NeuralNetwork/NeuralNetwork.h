@@ -16,7 +16,19 @@ public:
     NeuralNetwork(const std::vector<int> &topology);
     ~NeuralNetwork();
 
+    double getAlpha() const;
+    void setAlpha(double alpha);
+
+
+    double evaluate(std::vector<double> inputs);
+    void backPropagate(double target);
+    void update();
+
+    double learn(std::vector<double> inputs, double expectedOutput);
+
+
 protected:
 
     std::vector<Layer*> layers;
+    double alpha;
 };
