@@ -16,6 +16,11 @@ double derivativeSigmoid(double x) {
     return result * (1.0 - result);
 }
 
+double derivativeTanh(double x) {
+    double result = tanh(x);
+    return 1.0 - (result * result);
+}
+
 NeuralNetwork::NeuralNetwork(const std::vector<int> &topology) {
 
     this->alpha = 0.1;
@@ -36,7 +41,7 @@ NeuralNetwork::NeuralNetwork(const std::vector<int> &topology) {
         this->layers.push_back(newLayer);
 
         for(int j = 0; j < numNeurons; j++) {
-            Neuron *newNeuron = new Neuron((vFunctionCall) sigmoid, (vFunctionCall) derivativeSigmoid, previousLayer, 0.1);
+            Neuron *newNeuron = new Neuron((vFunctionCall) tanh, (vFunctionCall) derivativeTanh, previousLayer, 1);
             newLayer->addNeuron(newNeuron);
         }
 
@@ -75,14 +80,16 @@ void NeuralNetwork::setAlpha(double alpha) {
 }
 
 
-double NeuralNetwork::evaluate(std::vector<double> inputs) {
+std::vector<double> NeuralNetwork::evaluate(std::vector<double> inputs) {
+
+    std::vector<double> outputs;
 
     Layer* inputLayer = this->layers[0];
 
     //Check if input size is correct
     if(inputs.size() != inputLayer->getNeurons().size()) {
         printf("Error! Input size not equal no first layer size!!\n");
-        return 0;
+        return outputs;
     }
 
     //Update first layer
@@ -99,13 +106,24 @@ double NeuralNetwork::evaluate(std::vector<double> inputs) {
     }
 
     //Network Output
-    return this->layers[this->layers.size() - 1]->getNeurons()[0]->getOutputVal();
+
+    Layer* outputLayer = this->layers[this->layers.size() - 1];
+
+    for(int i = 0; i < outputLayer->getNeurons().size(); i++) {
+        outputs.push_back(outputLayer->getNeurons()[i]->getOutputVal());
+    }
+
+    return outputs;
 }
 
-void NeuralNetwork::backPropagate(double targetValue) {
+void NeuralNetwork::backPropagate(std::vector<double> targetValues) {
 
-    Neuron* outputNeuron = this->layers[layers.size() - 1]->getNeurons()[0];
-    outputNeuron->setError(outputNeuron->getOutputVal() - targetValue);
+    Layer* outputLayer = this->layers[this->layers.size() - 1];
+
+    for(int i = 0; i < outputLayer->getNeurons().size(); i++) {
+        Neuron* outputNeuron = this->layers[layers.size() - 1]->getNeurons()[i];
+        outputNeuron->setError(outputNeuron->getOutputVal() - targetValues[i]);
+    }
 
     for(unsigned long layerN = layers.size() - 1; layerN > 0; layerN--) {
         Layer* layer = this->layers[layerN];
@@ -192,14 +210,42 @@ void NeuralNetwork::update() {
     }
 }
 
-double NeuralNetwork::learn(std::vector<double> inputs, double expectedOutput) {
+std::vector<double> NeuralNetwork::learn(std::vector<double> inputs, std::vector<double> expectedOutputs) {
 
-    double output = this->evaluate(inputs);
-    this->backPropagate(expectedOutput);
+    std::vector<double> error;
+    Layer* outputLayer = this->layers[this->layers.size() - 1];
+
+    if(expectedOutputs.size() != outputLayer->getNeurons().size()) {
+        printf("Error! Output size not equal to output layer size!!\n");
+        return error;
+    }
+
+    std::vector<double> outputs = this->evaluate(inputs);
+    this->backPropagate(expectedOutputs);
     this->update();
 
     //Return error, aka, euclidean distance
-    return sqrt(pow(output - expectedOutput, 2));
+    for(int i = 0; i < outputs.size(); i++){
+        error.push_back(sqrt(pow(outputs[i] - expectedOutputs[i], 2)));
+    }
+
+    return error;
 }
+
+int NeuralNetwork::classifyEvaluation(std::vector<double> output) {
+
+    int predictedClass = 1;
+    double predictedValue = output[0];
+
+    for(int i = 1; i < output.size(); i++) {
+        if(output[i] > predictedValue) {
+            predictedValue = output[i];
+            predictedClass = i + 1;
+        }
+    }
+
+    return predictedClass;
+}
+
 
 

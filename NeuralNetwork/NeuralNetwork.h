@@ -20,12 +20,13 @@ public:
     void setAlpha(double alpha);
 
 
-    double evaluate(std::vector<double> inputs);
-    void backPropagate(double target);
+    std::vector<double> evaluate(std::vector<double> inputs);
+    void backPropagate(std::vector<double> targets);
     void update();
 
-    double learn(std::vector<double> inputs, double expectedOutput);
+    std::vector<double> learn(std::vector<double> inputs, std::vector<double> expectedOutput);
 
+    int classifyEvaluation(std::vector<double> outputs);
 
 protected:
 

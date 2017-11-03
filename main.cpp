@@ -20,9 +20,8 @@ int main() {
     std::vector<int> topology;
 
     topology.push_back(3);
-    topology.push_back(3);
-    topology.push_back(3);
-    topology.push_back(1);
+    topology.push_back(6);
+    topology.push_back(2);
 
     NeuralNetwork *myNet = new NeuralNetwork(topology);
 
@@ -42,30 +41,27 @@ int main() {
 
     while(std::getline(infile, line)) {
 
-        int age, year, auxwtf, dead;
-        sscanf(line.c_str(), "%d,%d,%d,%d", &age, &year, &auxwtf, &dead);
+        int i1, i2, i3, i4, i5, i6, i7, i8, i9, o1;
+        std::vector<double> outputs;
+        sscanf(line.c_str(), "%d,%d,%d,%d", &i1, &i2, &i3, &o1);
 
-        if(dead == 1)
-            dead = 0;
-        else dead = 1;
+        if(o1 == 1)
+            outputs = {1, 0};
+        else if (o1 == 2)
+            outputs = {0, 1};
 
         if(trainingPhase-- > 0) {
 
-            myNet->learn({sigmoide(age), sigmoide(year), sigmoide(auxwtf)}, dead);
+            myNet->learn({i1, i2, i3}, outputs);
 
         }
         else {
 
-            double output = myNet->evaluate({sigmoide(age), sigmoide(year), sigmoide(auxwtf)});
-            int isDead;
+            std::vector<double> evaluation = myNet->evaluate({i1, i2, i3});
 
-            if(output >= 0.5) {
-                isDead = 1;
-            } else {
-                isDead = 0;
-            }
+            int preditectClass = myNet->classifyEvaluation(evaluation);
 
-            if(isDead == dead) {
+            if(preditectClass == o1) {
                 printf("Acertou!\n");
                 totalAcertos++;
             } else {
